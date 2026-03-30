@@ -8,7 +8,7 @@ The core logic is handled by a Soroban smart contract deployed on the Stellar Te
 
 Contract ID: CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM
 
-Explorer: View on StellarExpert
+Explorer: [View on StellarExpert](https://stellar.expert/explorer/testnet/contract/CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM)
 
 ## 🛠 Tech Stack
 Smart Contract: Rust + Soroban SDK
