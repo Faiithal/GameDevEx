@@ -40,28 +40,32 @@ Freighter Wallet (Browser Extension)
 Yarn (For internal SDK dependencies)
 
 Step 1: Clone and Install
-PowerShell
+```PowerShell
 # Create the project using Vite
 npm create vite@latest gamedevex -- --template react-ts
 cd gamedevex
 
 # Install dependencies (use quotes for PowerShell compatibility)
 npm install "@stellar/stellar-sdk" "@creit.tech/stellar-wallets-kit" lucide-react "buffer" --ignore-scripts
+```
 Step 2: Configure TypeScript
 In tsconfig.json, ensure moduleResolution is set to bundler to support the modular wallet kit:
 
-JSON
+```JSON
 "moduleResolution": "bundler"
+```
 Step 3: Global Polyfill
 In src/main.tsx, add the Buffer polyfill to support Stellar SDK in the browser:
 
-TypeScript
+```TypeScript
 import { Buffer } from 'buffer';
 window.Buffer = window.Buffer || Buffer;
+```
 🖥 Usage Guide
 Running Locally
-PowerShell
+```PowerShell
 npm run dev
+```
 Connecting Your Wallet
 Open your Freighter extension.
 
