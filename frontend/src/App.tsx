@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 // Correct imports for Stellar/Soroban v21+
 import {
   StellarWalletsKit,
@@ -7,14 +7,10 @@ import { defaultModules } from '@creit.tech/stellar-wallets-kit/modules/utils';
 import {
   Contract,
   rpc,
-  xdr,
   nativeToScVal,
-  TransactionBuilder,
-  Networks,
   Address
 } from "@stellar/stellar-sdk";
 import { ShieldCheck, Wallet, Coins, Loader2 } from 'lucide-react';
-import { Buffer } from 'buffer';
 
 
 // Replace with your actual Deployed ID from StellarExpert
