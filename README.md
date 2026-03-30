@@ -1,96 +1,137 @@
-# 🎨 GameDevEX: SEA Developer Hub
-A Decentralized Commission Ecosystem for Game Developers in Southeast Asia.
+# GameDevEX: SEA Developer Hub
 
-GameDevEX is a trustless platform built on the Stellar Network using Soroban Smart Contracts. It allows recruiters to hire game developers with verifiable on-chain certificates and secure payment links.
+A decentralized commission and verification hub built on Stellar's Soroban platform. GameDevEX allows game developers in Southeast Asia to register immutable certificates of their work and enables recruiters to hire talent via secure, on-chain payment links.
 
-## 🚀 Live on Testnet
-The core logic is handled by a Soroban smart contract deployed on the Stellar Testnet.
+---
 
-Contract ID: CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM
+## Features
 
-Explorer: [View on StellarExpert](https://stellar.expert/explorer/testnet/contract/CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM)
+- **Verified Portfolios** — developers register SHA-256 hashes of their assets or code; creates an immutable link between a wallet and a body of work.
+- **On-Chain Escrow** — payments are linked to specific developer addresses; funds are reserved on-chain to ensure recruiter liquidity.
+- **Verification Badges** — optional administrative verification for top-tier talent, visible via the 'Soroban Verified' status.
+- **Permissionless Discovery** — anyone can query the ledger to find developers, view their registered certificates, and check their commission history.
+- **Multi-Wallet Support** — fully compatible with the @creit.tech/stellar-wallets-kit (v2.0.1) for Freighter, xBull, and Albedo.
 
-## 🛠 Tech Stack
-Smart Contract: Rust + Soroban SDK
+---
 
-Frontend: React (TypeScript) + Vite
+## How It Works
 
-Styling: Tailwind CSS (v4)
+---
 
-Wallet Integration: @creit.tech/stellar-wallets-kit (v2.0.1)
+## Commission Lifecycle
 
-Blockchain Communication: @stellar/stellar-sdk (v21.0.0)
+| Status | Description |
+|---|---|
+| Pending | Recruiter has initiated the link; awaiting developer acknowledgement. |
+| Funded | Funds are locked in the contract; developer is actively working. |
+| Completed | Work approved; funds transferred to developer; irreversible. |
+| Cancelled | Cancelled by recruiter (if permitted) or admin; funds returned. |
 
-## 📖 Key Features & Functions
-1. Developer Verification (register_certificate)
-Developers can link their portfolio work (via SHA-256 hashes) to their wallet address. This creates a permanent, immutable record of their skills.
+---
 
-2. Trustless Commissions (link_payment)
-Recruiters can initiate a commission by linking a payment amount to a specific developer. This emits a "payment link" event that serves as a green light for the developer to start working.
+## Storage Layout
 
-3. On-Chain Events
-The frontend listens for symbols like reg_cert and reward to update the UI in real-time, providing transparency for both the dev and the employer.
+| Key | Type | Scope | Description |
+|---|---|---|---|
+| INIT | bool | Instance | Initialization guard. |
+| Config | Config | Instance | Admin, token types, and fee structures. |
+| DevProfile(addr) | Profile | Persistent | Developer metadata and verification status. |
+| Cert(hash) | Certificate | Persistent | Specific project/asset verification records. |
+| Commission(id) | Commission | Persistent | Record of active and past payments. |
+| DevCertIndex(addr)| Vec<Hash> | Persistent | List of all certificates owned by a developer. |
 
-## ⚙️ Setup & Installation
-Prerequisites
-Node.js (v18+)
+---
 
-Freighter Wallet (Browser Extension)
+## Public Interface
 
-Yarn (For internal SDK dependencies)
+### Setup
 
-Step 1: Clone and Install
-```PowerShell
-# Create the project using Vite
-npm create vite@latest gamedevex -- --template react-ts
-cd gamedevex
-
-# Install dependencies (use quotes for PowerShell compatibility)
-npm install "@stellar/stellar-sdk" "@creit.tech/stellar-wallets-kit" lucide-react "buffer" --ignore-scripts
+#### initialize
+```rust
+pub fn initialize(env: Env, admin: Address, payment_token: Address, fee_bps: u32)
 ```
-Step 2: Configure TypeScript
-In tsconfig.json, ensure moduleResolution is set to bundler to support the modular wallet kit:
 
-```JSON
-"moduleResolution": "bundler"
+Deploy the hub. Can only be called once.
+
+---
+
+### Developer Actions
+
+#### register_certificate
+```rust
+pub fn register_certificate(env: Env, developer: Address, work_hash: BytesN<32>, metadata_uri: String)
 ```
-Step 3: Global Polyfill
-In src/main.tsx, add the Buffer polyfill to support Stellar SDK in the browser:
 
-```TypeScript
-import { Buffer } from 'buffer';
-window.Buffer = window.Buffer || Buffer;
+Registers a work sample. Developer must provide a SHA-256 hash of the asset/code.
+
+---
+
+### Recruiter Actions
+
+#### link_payment
+```rust
+pub fn link_payment(env: Env, recruiter: Address, developer: Address, amount: i128) -> u64
 ```
-🖥 Usage Guide
-Running Locally
-```PowerShell
-npm run dev
+
+Initiates a commission. Funds are transferred from the recruiter to the contract's escrow.
+
+#### complete_commission
+```rust
+pub fn complete_commission(env: Env, recruiter: Address, commission_id: u64)
 ```
-Connecting Your Wallet
-Open your Freighter extension.
 
-Switch the network to Testnet.
+Finalizes the deal. Transfers the amount from escrow to the developer.
 
-Click "Connect Wallet" on the GameDevEX dashboard.
+---
 
-Accept the connection request.
+### Admin Actions
 
-Hiring a Developer
-Find a "Verified" developer card.
+#### verify_developer
+```pub fn verify_developer(env: Env, admin: Address, developer: Address)```
 
-Click "Hire with XLM".
+Adds the 'Soroban Verified' status to a profile. Admin only.
 
-Sign the Soroban transaction in the Freighter popup.
+---
 
-Once confirmed, the transaction hash will appear on StellarExpert.
+## Data Types
 
-## 🧠 Behind the Scenes: How it Works
-When you click "Hire," the app performs the following:
+### Config
+pub struct Config {
+    pub admin: Address,
+    pub payment_token: Address,
+    pub fee_bps: u32,
+}
 
-Address Parsing: Converts the human-readable G... address into a 32-byte XDR Address object.
+### Commission
+pub struct Commission {
+    pub id: u64,
+    pub recruiter: Address,
+    pub developer: Address,
+    pub amount: i128,
+    pub status: CommissionStatus,
+    pub created_at: u64,
+}
 
-Simulation: The Soroban RPC simulates the contract call to calculate resources.
+---
 
-Signing: The Wallet Kit sends the XDR to Freighter for your secure signature.
+## Getting Started
 
-Submission: The signed transaction is sent to the Stellar network, where it is validated by nodes and written to the ledger.
+### 1. Build the Contract
+```cargo build --target wasm32-unknown-unknown --release```
+
+### 2. Deploy to Testnet
+```stellar contract deploy --wasm target/wasm32-unknown-unknown/release/gamedevex.wasm --source deployer --network testnet```
+
+### 3. Initialize
+```stellar contract invoke --id CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM --source deployer --network testnet -- initialize --admin <ADMIN_ADDRESS> --payment_token <NATIVE_XLM_ADDRESS> --fee_bps 250```
+
+---
+
+## Testnet Contract Information
+* Contract ID: CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM
+* Explorer: [https://stellar.expert/explorer/testnet/contract/CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM]
+
+---
+
+## License
+MIT
