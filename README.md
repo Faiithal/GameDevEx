@@ -129,7 +129,7 @@ pub struct Commission {
 
 ## Testnet Contract Information
 * Contract ID: CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM
-* Explorer: [https://stellar.expert/explorer/testnet/contract/CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM]
+* Explorer: [Open in StellarExpert](https://stellar.expert/explorer/testnet/contract/CDCMG6T4QZRPAEDUD5DVNYFBHRFWLZNH47RM7YIPPOFPWLSPTEWE34GM)
 
 ---
 
